@@ -1,0 +1,106 @@
+
+html{
+    font-size: 36.5%;
+   
+}
+
+
+@colors: black;
+@backgroundColor :#B9EDDD;
+@timeGanHetColor: #F7D060; 
+@TimeHetColor :#ED2B2A;
+@colorText : #fff;
+
+.pomodoro{
+    width: 200px;
+    height: 100px;
+    display: block;
+    background-color:@backgroundColor;
+    width: 100px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition:  all 0.5s linear;
+    
+
+    &.colorWhite{
+        span{
+        color: @colorText;
+        }
+        div{
+            color: @colorText;
+        }
+    }
+    span {
+        font-size: 20px;
+        color: @colors;
+    }
+    
+    div {
+           @width: 12%;
+           @height: 50%;
+            width:@width;
+            height:@height;
+            position: relative;
+            list-style: none;
+            display: flex;
+            padding: 0;
+            margin: 0;
+            justify-content: center;
+            color:@colors;
+            font-size: 3.5rem;
+            // font-weight: 800;
+            margin: 0 0;
+            overflow: hidden;
+    
+            &::before {
+                position: absolute;
+                content: attr(data-change-number);
+                top: 0px;
+                transform: translateY(100%);
+            }
+    
+            &::after {
+                position: absolute;
+                top: 0px;
+                content: attr(data-current-number);
+                transform: translateY(0);
+            }
+    
+            &.active::before {
+                animation: buttom 0.5s linear;
+                animation-fill-mode: forwards;
+            }
+    
+            &.active::after {
+                animation: top 0.5s linear;
+                animation-fill-mode: forwards;
+            }
+    
+            @keyframes top {
+                100% {
+                    transform: translateY(-100%);
+                }
+            }
+    
+            @keyframes buttom {
+                100% {
+                    transform: translateY(0);
+                }
+            }
+    }
+
+    &.timeGanHet {
+        background-color: @timeGanHetColor;
+    }
+    &.timeHet {
+        background-color: @TimeHetColor;
+    }
+    
+}
+
+
+
+
+
