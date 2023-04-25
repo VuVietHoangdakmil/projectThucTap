@@ -4,6 +4,8 @@ async function DB(TableDB) {
     const db = openRequest.result;
     if (!db.objectStoreNames.contains(TableDB)) {
       db.createObjectStore(TableDB, { keyPath: "id" });
+    } else {
+      alert("trùng tên DB");
     }
   };
 
@@ -51,12 +53,19 @@ async function DB(TableDB) {
 
     return promise;
   }
+  function deleteDatabase(nameDB) {
+    const DBDeleteRequest = window.indexedDB.deleteDatabase(nameDB);
 
+    DBDeleteRequest.onsuccess = (event) => {
+      console.log("okokokoko");
+    };
+  }
   return {
     openRequest,
     createObjectStore,
     getAllstore,
     reloadStore,
+    deleteDatabase,
   };
 }
 

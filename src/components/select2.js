@@ -11,9 +11,11 @@ import {
 
 async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
   function Select2(root, type, idSelect) {
+    const boxSelect2 = document.createElement("div");
     const select2 = document.createElement("select");
     select2.setAttribute("class", idSelect);
-    root.appendChild(select2);
+    boxSelect2.appendChild(select2);
+    root.appendChild(boxSelect2);
 
     const data = isURL(type) ? loadApi : loadData;
     start(type, data);
@@ -43,8 +45,6 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
             };
           },
           processResults: function (data, params) {
-            console.log(params);
-
             params.page = params.page || 1;
 
             const returnData = {
@@ -61,13 +61,17 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
 
         placeholder: "Search for a repository",
         minimumInputLength: 1,
-        dropdownCssClass: "CssDropdown",
         allowClear: true,
         width: Width ? "100%" : "auto",
         templateResult: formatRepo,
         templateSelection: formatRepoSelection,
       });
+
       function formatRepo(repo) {
+        if (repo.country) {
+          repo.text = repo.country;
+        }
+
         console.log(repo);
         if (repo.loading) {
           return repo.text;
@@ -84,7 +88,18 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
         return $container;
       }
       function formatRepoSelection(repo) {
-        return repo.country || repo.text;
+        console.log(repo);
+        return (
+          ToolTipsApi(repo.country, lengthStr) ||
+          ToolTipsApi(repo.text, lengthStr)
+        );
+      }
+
+      function ToolTipsApi(str, length) {
+        if (str?.length && str.length > length) {
+          return str.slice(0, length) + "...";
+        }
+        return str;
       }
     }
 
@@ -96,6 +111,23 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
         width: Width ? "100%" : "auto",
         placeholder: "",
       });
+      $(document).ready(function () {
+        const domValue = $(`.${idSelect}+.select2`).find(
+          ".select2-selection__rendered"
+        );
+        domValue.text(ToolTipsF(domValue.text(), lengthStr));
+        $(`.${idSelect}`).on("change", function () {
+          domValue.text(ToolTipsF(domValue.text(), lengthStr));
+          console.log(GetValueSelect(`${idSelect}`));
+          console.log(GetTextSelect(`${idSelect}`));
+        });
+      });
+      function ToolTipsF(str, length) {
+        if (str.length > length) {
+          return str.slice(0, length) + "...";
+        }
+        return str;
+      }
     }
 
     function isURL(str) {
@@ -110,25 +142,6 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
       ); // fragment locator
       return !!pattern.test(str);
     }
-
-    function ToolTipsF(str, length) {
-      if (str.length > length) {
-        return str.slice(0, length) + "...";
-      }
-      return str;
-    }
-
-    $(document).ready(function () {
-      const domValue = $(`.${idSelect}+.select2`).find(
-        ".select2-selection__rendered"
-      );
-      domValue.text(ToolTipsF(domValue.text(), lengthStr));
-      $(`.${idSelect}`).on("change", function () {
-        domValue.text(ToolTipsF(domValue.text(), lengthStr));
-        console.log(GetValueSelect(`${idSelect}`));
-        console.log(GetTextSelect(`${idSelect}`));
-      });
-    });
   }
 
   async function startAPI(Select2, api, nameDB) {
@@ -136,7 +149,7 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
     if (!getStorage("ListApi") || !getStorage("ListApi")[api]) {
       setStorage("ListApi", {
         ...getStorage("ListApi"),
-        [api]: { count: 1, nameDB: nameDB },
+        [api]: { count: 1, nameDB: api },
       });
     } else {
       setStorage("ListApi", {
@@ -150,8 +163,13 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
 
     const nameDBH = getStorage("ListApi")[api].nameDB;
 
-    const { openRequest, createObjectStore, getAllstore, reloadStore } =
-      await DB(nameDBH);
+    const {
+      openRequest,
+      createObjectStore,
+      getAllstore,
+      reloadStore,
+      deleteDatabase,
+    } = await DB(nameDBH);
 
     return new Promise((resolve, reject) => {
       openRequest.onsuccess = async (event) => {
@@ -162,7 +180,10 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
           const res = await getAllstore(db);
           const isDate =
             res.length > 0 || !res ? new Date(res[0].created) : false;
-
+          resolve(getApi(api, db, "add"));
+          Select2(root, api, nameDB);
+          // db.close();
+          return;
           // add api
           if (res.length <= 0 || !res) {
             resolve(getApi(api, db, "add"));
@@ -172,25 +193,31 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
           }
 
           // update theo datetime
-          if (isDate) {
-            const timeHT = new Date().getHours();
-            const DayHt = getDate(new Date());
-            const DayLocal = getDate(isDate);
+          const startIsDate = async () => {
+            if (isDate) {
+              const timeHT = new Date().getHours();
+              const DayHt = getDate(new Date());
+              const DayLocal = getDate(isDate);
 
-            const dkDay = new Date(DayHt) > new Date(DayLocal);
-            const timelocal = isDate.getHours();
+              const dkDay = new Date(DayHt) > new Date(DayLocal);
+              const timelocal = isDate.getHours();
 
-            if (timeHT - timelocal >= 6 || dkDay) {
-              resolve(getApi(api, db, "update"));
-              Select2(root, api, nameDB);
+              if (timeHT - timelocal >= 6 || dkDay) {
+                resolve(getApi(api, db, "update"));
+                Select2(root, api, nameDB);
 
-              localStorage.removeItem("ListApi");
-              
-              console.log("deleteTime");
-              // db.close();
-              return;
+                for (let name in getStorage("ListApi")) {
+                  deleteDatabase(name);
+                }
+                localStorage.removeItem("ListApi");
+
+                console.log("deleteTime");
+                // db.close();
+                return;
+              }
             }
-          }
+          };
+          startIsDate();
 
           //update data
           if (getStorage("ListApi")[api].count >= 2) {
@@ -200,15 +227,6 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
             });
             Select2(root, datanew, nameDB);
             resolve("yes");
-            return;
-          }
-
-          //  update api
-          if (getStorage("ListApi")[api].count < 2) {
-            resolve(getApi(api, db, "update"));
-            Select2(root, api, nameDB);
-            setStorage(nameDB, api);
-            // db.close();
             return;
           }
 
