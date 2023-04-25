@@ -1,6 +1,6 @@
 import "./CssTooltips.scss";
 import $ from "jquery";
-function ToolTips(root, str, length) {
+function ToolTips(root, str, length, id) {
   const boxToolTips = document.createElement("div");
   boxToolTips.className = "boxToolTipsCha";
   boxToolTips.innerHTML = ToolTipsF(str, length);
@@ -8,36 +8,56 @@ function ToolTips(root, str, length) {
 
   function ToolTipsF(str, length) {
     if (str.length > length) {
-      return `<span class="boxToolTips"> ${str.slice(0, length) + "..."} 
-      <span class="textHiden">${str}</span>
+      return `<span class="boxToolTips"  id="${id}"> ${
+        str.slice(0, length) + "..."
+      } 
+      <span class="textHiden ${id} ">${str}</span>
     </span> `;
     }
     return `<span class="boxToolTips noHover"> ${str} </span> `;
   }
 
   $(document).ready(function () {
-    $(".boxToolTips").mousemove(function (event) {
-      const rect = this.getBoundingClientRect();
+    
+    $(`#${id}`).mousemove(function () {
+      const h = $(`.${id}`).height();
+      const h2 = $(".boxToolTips").height();
 
-      const x = event.clientX - rect.left;
-      const h = $(".textHiden").height();
+      const element = $(`.${id}`);
+      element.show();
 
-      if (x > 80) {
-        $(".textHiden").css({
-          left: "100%",
-          top: `-${h/2}px`,
-          transformOrigin: " 0% 25%",
-        });
-      } else {
-        console.log($(".textHiden").height());
-
-        $(".textHiden").css({
-          left: "0%",
-          top: `-${h + 20}px`,
-          transformOrigin: " 50% bottom",
-        });
+      if (element.is(":visible")) {
+        const rect = element[0].getBoundingClientRect();
+        if (
+          rect.top < 0 ||
+          rect.left < 0 ||
+          rect.bottom > $(window).height() ||
+          rect.right > $(window).width()
+        ) {
+          // bi an
+          console.log("bi an");
+          const h = element.height();
+          if (rect.top < 0) {
+            element.css({ bottom: `-${h + h2}px` });
+            return;
+          }
+          if (rect.left < 0) {
+           element.css({ left: `${100}%`, bottom: `-${h/2}px` });
+            return;
+          }
+          if (rect.bottom > $(window).height()) {
+            element.css({ bottom: `100%` });
+            return;
+          }
+          if (rect.right > $(window).height()) {
+              element.css({ left: `-${100}%`, bottom: `-${h/2}px` });
+            return;
+          }
+        }
       }
-      // console.log(x)
+    });
+    $(`#${id}`).mouseout(function () {
+      $(`.${id}`).hide();
     });
   });
 }

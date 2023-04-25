@@ -1,5 +1,5 @@
 import $ from "jquery";
-
+import "select2";
 import DB from "../database";
 import {
   GetTextSelect,
@@ -9,10 +9,10 @@ import {
   setSessionStorage,
 } from "../Functions";
 
-async function Select2Main(root, type, nameClass, maxWidth = false) {
-  function Select2(root, type, nameClass) {
+async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
+  function Select2(root, type, idSelect) {
     const select2 = document.createElement("select");
-    select2.setAttribute("class", nameClass);
+    select2.setAttribute("class", idSelect);
     root.appendChild(select2);
 
     const data = isURL(type) ? loadApi : loadData;
@@ -21,7 +21,7 @@ async function Select2Main(root, type, nameClass, maxWidth = false) {
     function start(type, load) {
       load(type);
       $(document).ready(function () {
-        $(`.${nameClass}`).on("select2:open", function () {
+        $(`.${idSelect}`).on("select2:open", function () {
           $(".select2-search__field").focus(function () {
             this.focus();
           });
@@ -30,7 +30,7 @@ async function Select2Main(root, type, nameClass, maxWidth = false) {
     }
 
     function loadApi(type) {
-      $(`.${nameClass}`).select2({
+      $(`.${idSelect}`).select2({
         ajax: {
           url: type,
           dataType: "json",
@@ -44,7 +44,7 @@ async function Select2Main(root, type, nameClass, maxWidth = false) {
           },
           processResults: function (data, params) {
             console.log(params);
-            console.log("data", data);
+
             params.page = params.page || 1;
 
             const returnData = {
@@ -63,7 +63,7 @@ async function Select2Main(root, type, nameClass, maxWidth = false) {
         minimumInputLength: 1,
         dropdownCssClass: "CssDropdown",
         allowClear: true,
-        width: maxWidth ? "100%" : "auto",
+        width: Width ? "100%" : "auto",
         templateResult: formatRepo,
         templateSelection: formatRepoSelection,
       });
@@ -89,11 +89,11 @@ async function Select2Main(root, type, nameClass, maxWidth = false) {
     }
 
     function loadData(type) {
-      $(`.${nameClass}`).select2({
+      $(`.${idSelect}`).select2({
         data: type,
         allowClear: true,
         debug: true,
-        width: maxWidth ? "100%" : "auto",
+        width: Width ? "100%" : "auto",
         placeholder: "",
       });
     }
@@ -110,6 +110,25 @@ async function Select2Main(root, type, nameClass, maxWidth = false) {
       ); // fragment locator
       return !!pattern.test(str);
     }
+
+    function ToolTipsF(str, length) {
+      if (str.length > length) {
+        return str.slice(0, length) + "...";
+      }
+      return str;
+    }
+
+    $(document).ready(function () {
+      const domValue = $(`.${idSelect}+.select2`).find(
+        ".select2-selection__rendered"
+      );
+      domValue.text(ToolTipsF(domValue.text(), lengthStr));
+      $(`.${idSelect}`).on("change", function () {
+        domValue.text(ToolTipsF(domValue.text(), lengthStr));
+        console.log(GetValueSelect(`${idSelect}`));
+        console.log(GetTextSelect(`${idSelect}`));
+      });
+    });
   }
 
   async function startAPI(Select2, api, nameDB) {
@@ -132,33 +151,29 @@ async function Select2Main(root, type, nameClass, maxWidth = false) {
     // sessionStorage.removeItem("ListApi");
 
     const nameDBH = getSessionStorage("ListApi")[api].nameDB;
-    console.log(nameDBH);
+
     const { openRequest, createObjectStore, getAllstore, reloadStore } =
       await DB(nameDBH);
 
     return new Promise((resolve, reject) => {
       openRequest.onsuccess = async (event) => {
         try {
-          // chua co thi moi them
-          if (!getSessionStorage(nameDB)) {
-            setSessionStorage(nameDB, api);
-          }
+          // update name db
 
           const db = event.target.result;
           const res = await getAllstore(db);
           const isDate =
             res.length > 0 || !res ? new Date(res[0].created) : false;
 
-          // kiem tra xem api co thay doi thi moi update
-          if (getSessionStorage(nameDB) !== api) {
-            resolve(getApi(api, db, "update"));
+          // add api
+          if (res.length <= 0 || !res) {
+            resolve(getApi(api, db, "add"));
             Select2(root, api, nameDB);
-            setSessionStorage(nameDB, api);
             // db.close();
             return;
           }
 
-          // kiem tra date roi update
+          // update theo datetime
           if (isDate) {
             const timeHT = new Date().getHours();
             const DayHt = getDate(new Date());
@@ -175,32 +190,27 @@ async function Select2Main(root, type, nameClass, maxWidth = false) {
             }
           }
 
-          // kiem tra xem data da ton tai thi moi update
-          if (res.length <= 0 || !res) {
-            resolve(getApi(api, db, "add"));
-            Select2(root, api, nameDB);
-            // db.close();
-
-            return;
-          }
-
-          // kiểm tra xem api đã trùng hay chưa
-          
+          //update data
           if (getSessionStorage("ListApi")[api].count >= 2) {
-            console.log("datannge", res);
+            console.log("update data", res);
             const datanew = res.map((item) => {
               return { id: item.id, text: item.country || item.text };
             });
             Select2(root, datanew, nameDB);
-            // setSessionStorage("ListApi", {
-            //   ...getSessionStorage("ListApi"),
-            //   [api]: { count: 0, nameDB: nameDB },
-            // });
             resolve("yes");
             return;
           }
 
-          // khoong co dk nao
+          //  update api
+          if (getSessionStorage("ListApi")[api].count < 2) {
+            resolve(getApi(api, db, "update"));
+            Select2(root, api, nameDB);
+            setSessionStorage(nameDB, api);
+            // db.close();
+            return;
+          }
+
+          // khong co dk nao
           const datanew = res.map((item) => {
             return { id: item.id, text: item.country || item.text };
           });
@@ -228,11 +238,7 @@ async function Select2Main(root, type, nameClass, maxWidth = false) {
       };
     });
   }
-  return Promise.resolve(startAPI(Select2, type, nameClass));
+  return Promise.resolve(startAPI(Select2, type, idSelect));
 }
-
-// function RemoveSelect(nameElement) {
-//   $(`.${nameElement}`).remove();
-// }
 
 export default Select2Main;

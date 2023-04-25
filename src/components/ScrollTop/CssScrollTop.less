@@ -1,6 +1,10 @@
+@backgroundMain :rgba(152, 216, 170, 0.5);
+@ScrollTopColorText : #fff;
+@ScrollTopColorHover: rgb(86, 240, 129);
+
 #scrollTop {
     position: fixed;
-    background: rgba(152, 216, 170, 0.5);
+    background: @backgroundMain;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -12,7 +16,7 @@
     cursor: pointer;
     text-align: center;
     line-height: 50px;
-    color: white;
+    color: @ScrollTopColorText;
     font-size: 20px;
     @keyframes hientutu {
         from {
@@ -25,9 +29,9 @@
     }
 
     &:hover {
-        background: rgb(86, 240, 129);
+        background: @ScrollTopColorHover;
     }
 }
 body{
-    height: 5000px;
+    height: 3400px;
 }

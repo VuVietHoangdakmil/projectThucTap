@@ -50,7 +50,7 @@ html{
             justify-content: center;
             color:@colors;
             font-size: 3.5rem;
-            // font-weight: 800;
+          
             margin: 0 0;
             overflow: hidden;
     
@@ -59,6 +59,7 @@ html{
                 content: attr(data-change-number);
                 top: 0px;
                 transform: translateY(100%);
+                display: block;
             }
     
             &::after {
@@ -66,6 +67,7 @@ html{
                 top: 0px;
                 content: attr(data-current-number);
                 transform: translateY(0);
+                display: block;
             }
     
             &.active::before {

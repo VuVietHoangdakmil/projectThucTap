@@ -1,33 +1,37 @@
 import Select2 from "./components/select2.js";
 import "./StylesGlobal/Css.scss";
-import "./Css/CssSelect2.css";
 
+import $ from "jquery";
 import ToolTips from "./components/Tooltips/index.js";
 import Input from "./components/Input/index.js";
 import ScrollTop from "./components/ScrollTop";
 import Countdown from "./components/Countdown";
+import { GetValueSelect, GetTextSelect } from "./Functions";
 const root = document.getElementById("select");
 
-Countdown(root, "90")
+// ScrollTop(root);
+// Countdown(root, 5);
+// ToolTips(root, "vu viet hoangf1", 10, "id1");
+Input(root, "text", "ok1", "vu viet hoang", 6);
 
-// root.appendChild( ToolTips("hoangf vux viet vip prororadasd", 20));
-// root.appendChild(ToolTips( "hoangf vip pro", 20));
-// Input(root)
+const start = async () => {
+  await Select2(root, {
+    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country",
+    idSelect: "TKTK",
+    lengthStr: 6,
+  });
+  await Select2(root, {
+    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country?search=1",
+    idSelect: "TKTK5",
+    lengthStr: 5,
+  });
+  await Select2(root, {
+    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country?search=22",
+    idSelect: "TKTK6",
+    lengthStr: 5,
+  });
+  
+};
+start();
 
-// const boxTest = document.createElement("div");
-// boxTest.className = "BoxTest";
-// ToolTips(boxTest, "hoangf vux vieddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddeeeeeeeeeee ", 20);
-
-
-// root.appendChild(boxTest);
-
-// const BoxToolTips = document.querySelectorAll(".boxToolTipsCha")[1];
-// console.log([BoxToolTips]);
-// boxTest.onscroll = (e) => {
-// ;
-// console.log(BoxToolTips.getBoundingClientRect().width);
-
-// };
-
-
- 
+// Input(root, "Select");

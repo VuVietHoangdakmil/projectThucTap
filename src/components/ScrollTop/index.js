@@ -1,6 +1,6 @@
 import { icon } from "@fortawesome/fontawesome-svg-core";
 import { faArrowUp } from "@fortawesome/free-solid-svg-icons";
-import "./CssScrollTop.scss";
+import "./CssScrollTop.less";
 function ScrollTop(root) {
   const faArrowUpB = icon(faArrowUp);
 
@@ -10,13 +10,24 @@ function ScrollTop(root) {
   ScrollTop.appendChild(faArrowUpB.node[0]);
   root.appendChild(ScrollTop);
 
-  const heightWindow = window.screen.height;
+  const heightWindow = document.documentElement.getBoundingClientRect().height;
 
   window.onscroll = () => {
     scrollFunction();
   };
   function scrollFunction() {
-    if ((document.documentElement.scrollTop / heightWindow) * 100 > 40) {
+    const Ysrcool =
+      Math.abs(
+        Math.round(document.documentElement.getBoundingClientRect().top)
+      ) +
+        150 <=
+      150
+        ? 0
+        : Math.abs(
+            Math.round(document.documentElement.getBoundingClientRect().top)
+          ) + 150;
+
+    if ((Ysrcool / heightWindow) * 100 > 30) {
       ScrollTop.style.display = "block";
     } else {
       ScrollTop.style.display = "none";

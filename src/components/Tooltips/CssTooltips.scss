@@ -33,13 +33,12 @@
       animation: ScaleAnimation 0.2s linear;
       word-wrap: break-word;
       max-width: 150px;
-
+     bottom: 100%;
+     left: 0;
     }
     &:hover{
         cursor: pointer;
-        & > .textHiden{
-            display: block;
-        }
+       
     }
    
     &.noHover:hover{

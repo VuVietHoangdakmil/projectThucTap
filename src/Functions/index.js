@@ -7,8 +7,8 @@ const GetValueSelect = (classname) => {
 
 const GetTextSelect = (classname) => {
   const select = document.querySelector(`.${classname}`);
-  if (select) {
-    return select.innerText;
+  if (select.options[select.selectedIndex]) {
+    return select.options[select.selectedIndex].text;
   }
 };
 
@@ -26,13 +26,10 @@ const setSessionStorage = (key, value) => {
   sessionStorage.setItem(key, JSON.stringify(value));
 };
 
-
-
 export {
   GetValueSelect,
   GetTextSelect,
   getDate,
   getSessionStorage,
   setSessionStorage,
-  
 };
