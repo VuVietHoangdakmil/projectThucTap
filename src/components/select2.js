@@ -180,10 +180,7 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
           const res = await getAllstore(db);
           const isDate =
             res.length > 0 || !res ? new Date(res[0].created) : false;
-          resolve(getApi(api, db, "add"));
-          Select2(root, api, nameDB);
-          // db.close();
-          return;
+          
           // add api
           if (res.length <= 0 || !res) {
             resolve(getApi(api, db, "add"));

@@ -16,7 +16,7 @@ Input(root, "text", "ok1", "vu viet hoang", 6);
 
 const start = async () => {
   await Select2(root, {
-    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country",
+    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country?search=3",
     idSelect: "TKTK",
     lengthStr: 6,
   });
@@ -26,20 +26,12 @@ const start = async () => {
     lengthStr: 5,
   });
   await Select2(root, {
-    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country?search=21",
+    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country?search=2",
     idSelect: "TKTK6",
     lengthStr: 10,
+    Width:true
   });
-  await Select2(root, {
-    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country?search=3",
-    idSelect: "TKTK68",
-    lengthStr: 10,
-  });
-  await Select2(root, {
-    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country?search=1",
-    idSelect: "TKTK686",
-    lengthStr: 10,
-  });
+ 
 };
 start();
 
