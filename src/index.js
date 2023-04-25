@@ -26,9 +26,9 @@ const start = async () => {
     lengthStr: 5,
   });
   await Select2(root, {
-    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country?search=22",
+    type: "https://64337c34582420e231653899.mockapi.io/api/seacrh/country?search=29",
     idSelect: "TKTK6",
-    lengthStr: 5,
+    lengthStr: 10,
   });
   
 };

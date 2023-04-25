@@ -18,18 +18,18 @@ const getDate = (date) => {
   return `${Ndate.getFullYear()}-${Ndate.getMonth() + 1}-${Ndate.getDate()}`;
 };
 
-const getSessionStorage = (key) => {
-  return JSON.parse(sessionStorage.getItem(key));
+const getStorage = (key) => {
+  return JSON.parse(localStorage.getItem(key));
 };
 
-const setSessionStorage = (key, value) => {
-  sessionStorage.setItem(key, JSON.stringify(value));
+const setStorage = (key, value) => {
+  localStorage.setItem(key, JSON.stringify(value));
 };
 
 export {
   GetValueSelect,
   GetTextSelect,
   getDate,
-  getSessionStorage,
-  setSessionStorage,
+  getStorage,
+  setStorage,
 };

@@ -5,8 +5,8 @@ import {
   GetTextSelect,
   GetValueSelect,
   getDate,
-  getSessionStorage,
-  setSessionStorage,
+  getStorage,
+  setStorage,
 } from "../Functions";
 
 async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
@@ -133,24 +133,22 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
 
   async function startAPI(Select2, api, nameDB) {
     // kiểm tra ListApi
-    if (!getSessionStorage("ListApi") || !getSessionStorage("ListApi")[api]) {
-      setSessionStorage("ListApi", {
-        ...getSessionStorage("ListApi"),
+    if (!getStorage("ListApi") || !getStorage("ListApi")[api]) {
+      setStorage("ListApi", {
+        ...getStorage("ListApi"),
         [api]: { count: 1, nameDB: nameDB },
       });
     } else {
-      setSessionStorage("ListApi", {
-        ...getSessionStorage("ListApi"),
+      setStorage("ListApi", {
+        ...getStorage("ListApi"),
         [api]: {
-          ...getSessionStorage("ListApi")[api],
-          count: getSessionStorage("ListApi")[api].count + 1,
+          ...getStorage("ListApi")[api],
+          count: getStorage("ListApi")[api].count + 1,
         },
       });
     }
 
-    // sessionStorage.removeItem("ListApi");
-
-    const nameDBH = getSessionStorage("ListApi")[api].nameDB;
+    const nameDBH = getStorage("ListApi")[api].nameDB;
 
     const { openRequest, createObjectStore, getAllstore, reloadStore } =
       await DB(nameDBH);
@@ -185,13 +183,17 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
             if (timeHT - timelocal >= 6 || dkDay) {
               resolve(getApi(api, db, "update"));
               Select2(root, api, nameDB);
+
+              localStorage.removeItem("ListApi");
+              
+              console.log("deleteTime");
               // db.close();
               return;
             }
           }
 
           //update data
-          if (getSessionStorage("ListApi")[api].count >= 2) {
+          if (getStorage("ListApi")[api].count >= 2) {
             console.log("update data", res);
             const datanew = res.map((item) => {
               return { id: item.id, text: item.country || item.text };
@@ -202,10 +204,10 @@ async function Select2Main(root, { type, idSelect, lengthStr, Width }) {
           }
 
           //  update api
-          if (getSessionStorage("ListApi")[api].count < 2) {
+          if (getStorage("ListApi")[api].count < 2) {
             resolve(getApi(api, db, "update"));
             Select2(root, api, nameDB);
-            setSessionStorage(nameDB, api);
+            setStorage(nameDB, api);
             // db.close();
             return;
           }
